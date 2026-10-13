@@ -155,7 +155,8 @@ class VoiceChatClient:
         bass_boost: int = 0,
         normalize: bool = False,
         bitrate: str = "320k",
-        seek_sec: Optional[int] = None
+        seek_sec: Optional[int] = None,
+        headers: Optional[dict] = None
     ) -> bool:
         logger.info(f"Joining and playing stream in chat {chat_id} (url={stream_url[:40]}...)")
         await self.ensure_assistant_in_chat(chat_id)
@@ -174,7 +175,8 @@ class VoiceChatClient:
                 stream = MediaStream(
                     media_path=stream_url,
                     video_flags=MediaStream.Flags.IGNORE,
-                    ffmpeg_parameters=ffmpeg_params or None
+                    ffmpeg_parameters=ffmpeg_params or None,
+                    headers=headers
                 )
                 await self.pytgcalls_app.play(chat_id, stream)
                 if volume != 100:
@@ -235,38 +237,16 @@ class VoiceChatClient:
         return True
 
     async def leave_group(self, chat_id: int) -> bool:
-        """Make assistant user account leave the Telegram group."""
+        """Make assistant user account leave the Telegram group cleanly without banning."""
         if not self.assistant_client:
             return True
 
-        # Attempt 1: Assistant user leaves chat directly
         try:
             await self.assistant_client.leave_chat(chat_id)
-            logger.info(f"Assistant user left group {chat_id}")
+            logger.info(f"Assistant user left group {chat_id} cleanly.")
             return True
         except Exception as e:
-            logger.debug(f"Assistant leave_chat via Pyrogram error: {e}")
-
-        # Attempt 2: Bot removes assistant via HTTP Bot API (ban + unban) so it's guaranteed removed and can rejoin later
-        try:
-            import aiohttp
-            from app.config.settings import settings
-            token = settings.BOT_TOKEN
-            assistant_me = await self.assistant_client.get_me()
-            async with aiohttp.ClientSession() as session:
-                base_url = f"https://api.telegram.org/bot{token}"
-                await session.post(
-                    f"{base_url}/banChatMember",
-                    json={"chat_id": chat_id, "user_id": assistant_me.id}
-                )
-                await session.post(
-                    f"{base_url}/unbanChatMember",
-                    json={"chat_id": chat_id, "user_id": assistant_me.id, "only_if_banned": True}
-                )
-            logger.info(f"Assistant removed from group {chat_id} via Bot API fallback")
-            return True
-        except Exception as ex2:
-            logger.error(f"Failed to remove assistant from group {chat_id}: {ex2}")
+            logger.debug(f"Assistant leave_chat error (may have already left): {e}")
             return False
 
     def is_connected(self, chat_id: int) -> bool:

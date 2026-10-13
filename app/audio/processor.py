@@ -40,17 +40,19 @@ class AudioProcessor:
         seek_sec: Optional[int] = None
     ) -> str:
         """Build complete FFmpeg CLI parameters string for PyTgCalls MediaStream."""
+        parts: list[str] = []
+        if seek_sec is not None and seek_sec > 0:
+            parts.append(f"_-_start -ss {int(seek_sec)}")
+
         filter_str = AudioProcessor.build_ffmpeg_filter(
             equalizer=equalizer,
             bass_boost=bass_boost,
             normalize=normalize,
             volume=volume,
         )
-        parts: list[str] = []
-        if seek_sec is not None and seek_sec > 0:
-            parts.append(f"-ss {int(seek_sec)}")
         if filter_str:
-            parts.append(f'_-_end -af "{filter_str}"')
+            parts.append(f'_-_mid -af "{filter_str}"')
+
         return " ".join(parts)
 
     @staticmethod

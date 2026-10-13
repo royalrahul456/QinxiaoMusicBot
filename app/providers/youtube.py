@@ -20,12 +20,17 @@ YTDL_SEARCH_OPTIONS = {
 }
 
 YTDL_STREAM_OPTIONS = {
-    "format": "bestaudio/best",
+    "format": "bestaudio[ext=m4a]/bestaudio/best",
     "quiet": True,
     "no_warnings": True,
     "skip_download": True,
     "ignoreerrors": True,
     "geo_bypass": True,
+    "extractor_args": {
+        "youtube": {
+            "player_client": ["android", "web"]
+        }
+    },
 }
 
 
@@ -102,6 +107,7 @@ class YouTubeProvider(BaseMusicProvider):
                 web_url = info.get("webpage_url") or target_url
                 thumbnail = info.get("thumbnail")
 
+                http_headers = info.get("http_headers") or {}
                 return SongMetadata(
                     song_id=f"yt_{song_id}",
                     title=title,
@@ -110,7 +116,8 @@ class YouTubeProvider(BaseMusicProvider):
                     url=web_url,
                     stream_url=stream_url,
                     thumbnail=thumbnail,
-                    source="youtube"
+                    source="youtube",
+                    extra_info={"http_headers": http_headers}
                 )
 
         try:

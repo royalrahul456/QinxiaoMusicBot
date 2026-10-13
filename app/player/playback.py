@@ -56,9 +56,8 @@ class PlaybackManager:
                 chat_repo = ChatRepository(session)
                 chat_db = await chat_repo.get_or_create(chat_id)
                 if not chat_db.is_247:
-                    # Automatically leave VC and group after 5s grace period once live stream finishes
-                    delay = min(getattr(chat_db, "autoleave_delay", 5) or 5, 5)
-                    self._schedule_auto_leave(chat_id, delay)
+                    # Automatically leave VC and group after 10s delay once live stream finishes
+                    self._schedule_auto_leave(chat_id, delay_seconds=10)
             return False
 
         self._cancel_auto_leave(chat_id)
@@ -74,6 +73,7 @@ class PlaybackManager:
 
         next_item.song = resolved_song
 
+        stream_headers = resolved_song.extra_info.get("http_headers") if resolved_song.extra_info else None
         success = await vc_client.join_and_play(
             chat_id=chat_id,
             stream_url=resolved_song.stream_url,
@@ -81,7 +81,8 @@ class PlaybackManager:
             equalizer=queue.equalizer,
             bass_boost=queue.bass_boost,
             normalize=queue.normalize,
-            bitrate=queue.bitrate
+            bitrate=queue.bitrate,
+            headers=stream_headers
         )
 
         if success:
@@ -275,12 +276,12 @@ class PlaybackManager:
 
         return True
 
-    def _schedule_auto_leave(self, chat_id: int, delay_seconds: int = 180):
+    def _schedule_auto_leave(self, chat_id: int, delay_seconds: int = 10):
         self._cancel_auto_leave(chat_id)
 
         async def _leave_job():
             await asyncio.sleep(delay_seconds)
-            logger.info(f"Auto-leave triggered for idle chat {chat_id}")
+            logger.info(f"Auto-leave triggered after {delay_seconds}s delay for idle chat {chat_id}")
             await self.stop(chat_id)
 
         self._auto_leave_tasks[chat_id] = asyncio.create_task(_leave_job())
