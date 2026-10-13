@@ -227,11 +227,47 @@ class VoiceChatClient:
         if self.pytgcalls_app:
             try:
                 await self.pytgcalls_app.leave_call(chat_id)
-                logger.info(f"Left voice chat {chat_id}")
+                logger.info(f"Left voice chat call {chat_id}")
             except Exception as e:
-                logger.error(f"Leave voice chat error: {e}")
+                logger.debug(f"Leave voice chat call error: {e}")
         self.active_chats.discard(chat_id)
+        await self.leave_group(chat_id)
         return True
+
+    async def leave_group(self, chat_id: int) -> bool:
+        """Make assistant user account leave the Telegram group."""
+        if not self.assistant_client:
+            return True
+
+        # Attempt 1: Assistant user leaves chat directly
+        try:
+            await self.assistant_client.leave_chat(chat_id)
+            logger.info(f"Assistant user left group {chat_id}")
+            return True
+        except Exception as e:
+            logger.debug(f"Assistant leave_chat via Pyrogram error: {e}")
+
+        # Attempt 2: Bot removes assistant via HTTP Bot API (ban + unban) so it's guaranteed removed and can rejoin later
+        try:
+            import aiohttp
+            from app.config.settings import settings
+            token = settings.BOT_TOKEN
+            assistant_me = await self.assistant_client.get_me()
+            async with aiohttp.ClientSession() as session:
+                base_url = f"https://api.telegram.org/bot{token}"
+                await session.post(
+                    f"{base_url}/banChatMember",
+                    json={"chat_id": chat_id, "user_id": assistant_me.id}
+                )
+                await session.post(
+                    f"{base_url}/unbanChatMember",
+                    json={"chat_id": chat_id, "user_id": assistant_me.id, "only_if_banned": True}
+                )
+            logger.info(f"Assistant removed from group {chat_id} via Bot API fallback")
+            return True
+        except Exception as ex2:
+            logger.error(f"Failed to remove assistant from group {chat_id}: {ex2}")
+            return False
 
     def is_connected(self, chat_id: int) -> bool:
         return chat_id in self.active_chats

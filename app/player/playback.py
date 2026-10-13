@@ -51,12 +51,14 @@ class PlaybackManager:
                     next_item = auto_item
 
         if not next_item:
-            logger.info(f"Queue empty in chat {chat_id}.")
+            logger.info(f"Queue empty in chat {chat_id}. Stream finished.")
             async with get_session() as session:
                 chat_repo = ChatRepository(session)
                 chat_db = await chat_repo.get_or_create(chat_id)
-                if not chat_db.is_247 and chat_db.autoleave:
-                    self._schedule_auto_leave(chat_id, chat_db.autoleave_delay)
+                if not chat_db.is_247:
+                    # Automatically leave VC and group after 5s grace period once live stream finishes
+                    delay = min(getattr(chat_db, "autoleave_delay", 5) or 5, 5)
+                    self._schedule_auto_leave(chat_id, delay)
             return False
 
         self._cancel_auto_leave(chat_id)
