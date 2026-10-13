@@ -38,16 +38,16 @@ async def play_command(client, message: Message):
 
     # Handle /trending and /recommend which do not require an explicit query argument
     if cmd == "trending" and len(message.command) < 2:
-        status_msg = await message.reply_text("🔥 **Qinxiao Music** is fetching trending tracks...")
+        status_msg = await message.reply_text("🔥 **Qingxiao Music** is fetching trending tracks...")
         results = await provider_manager.get_trending(limit=1)
         query_label = "Trending Music"
     elif cmd == "recommend" and len(message.command) < 2:
         if queue.current_item:
-            status_msg = await message.reply_text("📻 **Qinxiao Music** is finding recommendations...")
+            status_msg = await message.reply_text("📻 **Qingxiao Music** is finding recommendations...")
             results = await provider_manager.get_recommendations(queue.current_item.song, limit=1)
             query_label = f"Recommendations for {queue.current_item.song.title}"
         else:
-            status_msg = await message.reply_text("🔥 **Qinxiao Music** is fetching top recommendations...")
+            status_msg = await message.reply_text("🔥 **Qingxiao Music** is fetching top recommendations...")
             results = await provider_manager.get_trending(limit=1)
             query_label = "Recommended Music"
     else:
@@ -56,7 +56,7 @@ async def play_command(client, message: Message):
 
         query = " ".join(message.command[1:])
         query_label = escape_markdown(query)
-        status_msg = await message.reply_text(f"🔍 **Qinxiao Music** is searching for `{query_label}`...")
+        status_msg = await message.reply_text(f"🔍 **Qingxiao Music** is searching for `{query_label}`...")
 
         if cmd == "playlist":
             results = await provider_manager.get_playlist(query, limit=queue.max_size)
@@ -90,7 +90,7 @@ async def play_command(client, message: Message):
             await status_msg.edit_text(f"📃 **Loaded playlist:** Starting playback and queued `{added_count}` tracks!")
             await playback_manager.play_next(chat_id)
         else:
-            await status_msg.edit_text(f"➕ **Added `{added_count}` playlist tracks to the Qinxiao Queue!**")
+            await status_msg.edit_text(f"➕ **Added `{added_count}` playlist tracks to the Qingxiao Queue!**")
         return
 
     song = results[0]
@@ -107,15 +107,19 @@ async def play_command(client, message: Message):
         added, reason = await queue.add(item)
         if added:
             await status_msg.edit_text(
-                f"➕ **Added to Qinxiao Queue:** [{safe_title}]({song.url})\n"
-                f"🎙 **Artist:** `{safe_artist}` | ⏱ **Duration:** `{format_duration(song.duration)}`"
+                f"➕ **Added to Qingxiao Queue:** [{safe_title}]({song.url})\n"
+                f"🎙 **Artist:** `{safe_artist}` | ⏱ **Duration:** `{format_duration(song.duration)}`",
+                disable_web_page_preview=True
             )
         else:
             await status_msg.edit_text(f"⚠️ Could not add to queue: {reason}")
     else:
         # Start playback directly: add item to queue so play_next -> queue.get_next() pops and plays it
         await queue.add(item, allow_duplicate=True)
-        await status_msg.edit_text(f"⏳ **Starting playback for:** [{safe_title}]({song.url})...")
+        try:
+            await status_msg.delete()
+        except Exception:
+            pass
         await playback_manager.play_next(chat_id)
 
 
@@ -123,7 +127,7 @@ async def play_command(client, message: Message):
 async def pause_command(client, message: Message):
     chat_id = message.chat.id
     if not vc_client.is_connected(chat_id):
-        return await message.reply_text("❌ Qinxiao Music is not currently playing in this chat.")
+        return await message.reply_text("❌ Qingxiao Music is not currently playing in this chat.")
 
     if not await _check_playback_permission(client, chat_id, message.from_user):
         return await message.reply_text("❌ Only group admins or the song requester can pause playback.")
@@ -131,7 +135,7 @@ async def pause_command(client, message: Message):
     success = await vc_client.pause(chat_id)
     if success:
         await playback_manager.update_player_ui(chat_id, is_paused=True)
-        await message.reply_text("⏸ **Qinxiao Music playback paused.**")
+        await message.reply_text("⏸ **Qingxiao Music playback paused.**")
     else:
         await message.reply_text("❌ Failed to pause playback.")
 
@@ -140,7 +144,7 @@ async def pause_command(client, message: Message):
 async def resume_command(client, message: Message):
     chat_id = message.chat.id
     if not vc_client.is_connected(chat_id):
-        return await message.reply_text("❌ Qinxiao Music is not currently playing in this chat.")
+        return await message.reply_text("❌ Qingxiao Music is not currently playing in this chat.")
 
     if not await _check_playback_permission(client, chat_id, message.from_user):
         return await message.reply_text("❌ Only group admins or the song requester can resume playback.")
@@ -148,7 +152,7 @@ async def resume_command(client, message: Message):
     success = await vc_client.resume(chat_id)
     if success:
         await playback_manager.update_player_ui(chat_id, is_paused=False)
-        await message.reply_text("▶️ **Qinxiao Music playback resumed.**")
+        await message.reply_text("▶️ **Qingxiao Music playback resumed.**")
     else:
         await message.reply_text("❌ Failed to resume playback.")
 
@@ -159,7 +163,7 @@ async def skip_command(client, message: Message):
     user = message.from_user
 
     if not vc_client.is_connected(chat_id):
-        return await message.reply_text("❌ Qinxiao Music is not playing in this chat.")
+        return await message.reply_text("❌ Qingxiao Music is not playing in this chat.")
 
     # Admin bypass check
     async with get_session() as session:
@@ -191,7 +195,7 @@ async def skip_command(client, message: Message):
 async def stop_command(client, message: Message):
     chat_id = message.chat.id
     if not vc_client.is_connected(chat_id):
-        return await message.reply_text("❌ Qinxiao Music is not playing in this chat.")
+        return await message.reply_text("❌ Qingxiao Music is not playing in this chat.")
 
     user = message.from_user
     if chat_id < 0:
@@ -200,7 +204,7 @@ async def stop_command(client, message: Message):
                 return await message.reply_text("❌ Only group administrators can stop playback and clear the queue.")
 
     await playback_manager.stop(chat_id)
-    await message.reply_text("⏹ **Playback stopped and Qinxiao queue cleared.**")
+    await message.reply_text("⏹ **Playback stopped and Qingxiao queue cleared.**")
 
 
 @rate_limit("command", 1.0)
@@ -208,7 +212,7 @@ async def volume_command(client, message: Message):
     chat_id = message.chat.id
     if len(message.command) < 2:
         queue = await queue_manager.get_queue(chat_id)
-        return await message.reply_text(f"🔊 **Current Qinxiao volume:** `{queue.volume}%`\nUse `/volume <0-200>` to change.")
+        return await message.reply_text(f"🔊 **Current Qingxiao volume:** `{queue.volume}%`\nUse `/volume <0-200>` to change.")
 
     if not await _check_playback_permission(client, chat_id, message.from_user):
         return await message.reply_text("❌ Only group administrators or the song requester can change playback volume.")

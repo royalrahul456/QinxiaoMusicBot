@@ -1,89 +1,66 @@
+import html
 from typing import Optional
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
-from app.player.queue_manager import GroupQueue, QueueItem, LoopMode
-from app.utils.formatting import format_duration, build_progress_bar, escape_markdown
+from app.config.settings import settings
+from app.player.queue_manager import GroupQueue, QueueItem
+from app.utils.formatting import format_duration
 
 
 def build_player_text(queue: GroupQueue, is_paused: bool = False, current_time: int = 0) -> str:
-    """Build formatted player markup text for Qinxiao Music."""
+    """Build compact, elegant HTML player text matching Image 2 layout."""
     item: Optional[QueueItem] = queue.current_item
 
     if not item:
         return (
-            "🎵 **Qinxiao Music Player** (@QinxiaoMusicBot)\n"
-            "━━━━━━━━━━━━━━━━━━━━━━━\n"
-            "❌ Nothing is currently playing in this chat.\n"
-            "Use `/play <song name or link>` to start playback!"
+            "| <u>Stream ended</u>\n\n"
+            f"<b>{settings.BOT_NAME}</b> queue is empty.\n"
+            "Use <code>/play &lt;song&gt;</code> to start listening!"
         )
 
     song = item.song
-    progress = build_progress_bar(current_time, song.duration) if song.duration > 0 else "🔴 LIVE"
-    status_icon = "⏸ Paused" if is_paused else "▶️ Playing"
+    header = "| <u>Stream paused</u>" if is_paused else "| <u>Started streaming</u>"
 
-    loop_icon = {
-        LoopMode.OFF: "Off",
-        LoopMode.TRACK: "🔂 Track",
-        LoopMode.QUEUE: "🔁 Queue"
-    }.get(queue.loop_mode, "Off")
+    m, s = divmod(song.duration, 60)
+    h, m = divmod(m, 60)
+    if h > 0:
+        dur_str = f"{h}:{m:02d}:{s:02d} hr"
+    elif song.duration > 0:
+        dur_str = f"{m}:{s:02d} min"
+    else:
+        dur_str = "Live min"
 
-    queue_count = len(queue.items)
+    title_escaped = html.escape(song.title)
+    requester_escaped = html.escape(item.requested_by_name or "User")
 
     text = (
-        f"🎵 **Qinxiao Music Player** (@QinxiaoMusicBot)\n"
-        f"━━━━━━━━━━━━━━━━━━━━━━━\n"
-        f"📌 **Title:** [{escape_markdown(song.title)}]({song.url})\n"
-        f"🎙 **Artist:** `{escape_markdown(song.artist)}`\n"
-        f"👤 **Requested by:** `{escape_markdown(item.requested_by_name)}`\n"
-        f"🎧 **Source:** `{song.source.title()}` | **Quality:** `{queue.bitrate}`\n"
-        f"━━━━━━━━━━━━━━━━━━━━━━━\n"
-        f"🔊 **Volume:** `{queue.volume}%` | 🎛 **EQ:** `{queue.equalizer.title()}`\n"
-        f"🔁 **Loop:** `{loop_icon}` | 📋 **In Queue:** `{queue_count}` tracks\n"
-        f"━━━━━━━━━━━━━━━━━━━━━━━\n"
-        f"{status_icon} | {progress}\n"
+        f"{header}\n\n"
+        f"<b>Title:</b> <a href=\"{song.url}\">{title_escaped}</a>\n\n"
+        f"<b>Duration:</b> {dur_str}\n"
+        f"<b>Requested by:</b> {requester_escaped}"
     )
-
     return text
 
 
 def build_player_keyboard(queue: GroupQueue, is_paused: bool = False) -> InlineKeyboardMarkup:
-    """Build interactive inline keyboard buttons for player."""
+    """Build minimalist inline playback control buttons matching Image 2."""
     play_pause_btn = InlineKeyboardButton(
-        "▶️ Resume" if is_paused else "⏸ Pause",
+        "▷" if is_paused else "II",
         callback_data="cb_player_resume" if is_paused else "cb_player_pause"
     )
 
-    loop_label = {
-        LoopMode.OFF: "🔁 Loop: Off",
-        LoopMode.TRACK: "🔂 Loop: Track",
-        LoopMode.QUEUE: "🔁 Loop: Queue"
-    }.get(queue.loop_mode, "🔁 Loop")
+    bot_username = settings.BOT_USERNAME.replace("@", "")
+    add_group_url = f"https://t.me/{bot_username}?startgroup=true"
 
     keyboard = InlineKeyboardMarkup([
         [
+            InlineKeyboardButton("▸▸I", callback_data="cb_player_skip"),
+            InlineKeyboardButton("◽", callback_data="cb_player_stop"),
             play_pause_btn,
-            InlineKeyboardButton("⏭ Skip", callback_data="cb_player_skip"),
-            InlineKeyboardButton("🔄 Replay", callback_data="cb_player_replay"),
-            InlineKeyboardButton("⏹ Stop", callback_data="cb_player_stop"),
         ],
         [
-            InlineKeyboardButton("🔀 Shuffle", callback_data="cb_player_shuffle"),
-            InlineKeyboardButton(loop_label, callback_data="cb_player_loop"),
-            InlineKeyboardButton("🔉 Vol-", callback_data="cb_player_voldown"),
-            InlineKeyboardButton("🔊 Vol+", callback_data="cb_player_volup"),
-        ],
-        [
-            InlineKeyboardButton("🔇 Mute" if queue.volume > 0 else "🔊 Unmute", callback_data="cb_player_mute"),
-            InlineKeyboardButton("📋 Queue", callback_data="cb_player_queue"),
-            InlineKeyboardButton("❤️ Favorite", callback_data="cb_player_fav"),
-            InlineKeyboardButton("🎵 Lyrics", callback_data="cb_player_lyrics"),
-        ],
-        [
-            InlineKeyboardButton("🎛 Equalizer", callback_data="cb_player_eq"),
-            InlineKeyboardButton("⚡ Bass", callback_data="cb_player_bass"),
-            InlineKeyboardButton("🌐 Quality", callback_data="cb_player_quality"),
-            InlineKeyboardButton("❌ Close", callback_data="cb_player_close"),
+            InlineKeyboardButton("➕", url=add_group_url),
+            InlineKeyboardButton("Close", callback_data="cb_player_close"),
         ]
     ])
-
     return keyboard

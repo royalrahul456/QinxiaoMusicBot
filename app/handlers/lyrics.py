@@ -29,7 +29,7 @@ async def lyrics_command(client, message: Message):
     if not title:
         return await message.reply_text("❌ Please specify a song title or play a song first!\nExample: `/lyrics Alan Walker - Faded`")
 
-    status_msg = await message.reply_text(f"🔍 **Qinxiao Music** is fetching lyrics for `{artist + ' - ' if artist else ''}{title}`...")
+    status_msg = await message.reply_text(f"🔍 **Qingxiao Music** is fetching lyrics for `{artist + ' - ' if artist else ''}{title}`...")
     res = await lyrics_provider.fetch_lyrics(title, artist)
 
     if not res or not res.plain_lyrics:

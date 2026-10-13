@@ -77,7 +77,7 @@ async def main():
     try:
         await asyncio.Event().wait()
     except (KeyboardInterrupt, SystemExit):
-        logger.info("Shutting down Qinxiao Music Bot...")
+        logger.info(f"Shutting down {settings.BOT_NAME} Bot...")
     finally:
         await bot_poller.stop()
         poller_task.cancel()

@@ -188,6 +188,68 @@ class MockMessage:
         except Exception as e:
             logger.error(f"Error editing text via HTTP Bot API: {e}")
 
+    async def reply_photo(self, photo: str, caption: str = "", reply_markup=None, parse_mode=None):
+        url = f"https://api.telegram.org/bot{self._bot_token}/sendPhoto"
+        mode = parse_mode
+        if mode is None and caption:
+            mode = "HTML" if ("<" in caption and ">" in caption) else "Markdown"
+        elif hasattr(mode, "value"):
+            mode = mode.value
+        elif hasattr(mode, "name"):
+            mode = mode.name
+
+        payload = {
+            "chat_id": self.chat.id,
+            "photo": photo,
+            "caption": caption,
+            "parse_mode": mode,
+        }
+        serialized_kb = self._serialize_reply_markup(reply_markup)
+        if serialized_kb:
+            payload["reply_markup"] = serialized_kb
+
+        try:
+            async with self._session.post(url, json=payload) as resp:
+                data = await resp.json()
+                if data.get("ok"):
+                    return MockMessage(data["result"], self._bot_token, self._session)
+                else:
+                    payload["parse_mode"] = None
+                    async with self._session.post(url, json=payload) as r2:
+                        res2 = await r2.json()
+                        if res2.get("ok"):
+                            return MockMessage(res2["result"], self._bot_token, self._session)
+        except Exception as e:
+            logger.error(f"Error replying photo via HTTP Bot API: {e}")
+
+    async def edit_caption(self, caption: str = "", reply_markup=None, parse_mode=None):
+        url = f"https://api.telegram.org/bot{self._bot_token}/editMessageCaption"
+        mode = parse_mode
+        if mode is None and caption:
+            mode = "HTML" if ("<" in caption and ">" in caption) else "Markdown"
+        elif hasattr(mode, "value"):
+            mode = mode.value
+        elif hasattr(mode, "name"):
+            mode = mode.name
+
+        payload = {
+            "chat_id": self.chat.id,
+            "message_id": self.message_id,
+            "caption": caption,
+            "parse_mode": mode,
+        }
+        serialized_kb = self._serialize_reply_markup(reply_markup)
+        if serialized_kb:
+            payload["reply_markup"] = serialized_kb
+
+        try:
+            async with self._session.post(url, json=payload) as resp:
+                data = await resp.json()
+                if data.get("ok"):
+                    return MockMessage(data["result"], self._bot_token, self._session)
+        except Exception as e:
+            logger.error(f"Error editing caption via HTTP Bot API: {e}")
+
     async def delete(self):
         url = f"https://api.telegram.org/bot{self._bot_token}/deleteMessage"
         payload = {"chat_id": self.chat.id, "message_id": self.message_id}

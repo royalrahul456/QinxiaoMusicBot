@@ -19,7 +19,7 @@ async def premium_command(client, message: Message):
 
     if sub:
         text = (
-            f"✨ **Qinxiao Premium Active**\n"
+            f"✨ **Qingxiao Premium Active**\n"
             f"━━━━━━━━━━━━━━━━━━━━━━━\n"
             f"Plan: `{sub.plan_name.title()}`\n"
             f"Activated On: `{sub.activated_at.strftime('%Y-%m-%d')}`\n"
@@ -27,8 +27,8 @@ async def premium_command(client, message: Message):
         )
     else:
         text = (
-            f"🆓 **Qinxiao Free Account**\n\n"
-            f"Upgrade to Qinxiao Premium to unlock:\n"
+            f"🆓 **Qingxiao Free Account**\n\n"
+            f"Upgrade to Qingxiao Premium to unlock:\n"
             f"• 24/7 continuous voice chat playback\n"
             f"• Maximum queue limit up to 500 tracks\n"
             f"• High quality 320k audio streams & custom EQ\n"
@@ -41,7 +41,7 @@ async def premium_command(client, message: Message):
 
 @rate_limit("command", 1.0)
 async def plans_command(client, message: Message):
-    text = f"⭐ **Qinxiao Music Premium Plans**\n━━━━━━━━━━━━━━━━━━━━━━━\n\n"
+    text = f"⭐ **Qingxiao Music Premium Plans**\n━━━━━━━━━━━━━━━━━━━━━━━\n\n"
     for code, p in PREMIUM_PLANS.items():
         text += (
             f"✨ **{p['name']}** (`{code}`)\n"

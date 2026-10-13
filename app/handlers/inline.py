@@ -22,10 +22,10 @@ async def inline_search_handler(client, inline_query: InlineQuery):
         # Default prompt when query is empty
         results = [
             InlineQueryResultArticle(
-                title="🎵 Qinxiao Music Inline Search",
+                title=f"🎵 {settings.BOT_NAME} Inline Search",
                 description="Type a song title or artist to search!",
                 input_message_content=InputTextMessageContent(
-                    f"🎵 **Qinxiao Music (@QinxiaoMusicBot)**\nUse inline search to find and share music directly in any chat!"
+                    f"🎵 **{settings.BOT_NAME} ({settings.BOT_USERNAME})**\nUse inline search to find and share music directly in any chat!"
                 ),
                 thumb_url="https://raw.githubusercontent.com/telegram/pyrogram/master/docs/source/_static/pyrogram.png"
             )
@@ -39,18 +39,18 @@ async def inline_search_handler(client, inline_query: InlineQuery):
     for t in tracks:
         keyboard = InlineKeyboardMarkup([
             [
-                InlineKeyboardButton("▶️ Play on Qinxiao Music", url=f"https://t.me/{settings.BOT_USERNAME.replace('@', '')}?start=play_{t.song_id}"),
+                InlineKeyboardButton(f"▶️ Play on {settings.BOT_NAME}", url=f"https://t.me/{settings.BOT_USERNAME.replace('@', '')}?start=play_{t.song_id}"),
                 InlineKeyboardButton("🎵 Open Song Link", url=t.url),
             ]
         ])
 
         msg_content = InputTextMessageContent(
-            f"🎵 **Qinxiao Music Track Share**\n"
+            f"🎵 **{settings.BOT_NAME} Track Share**\n"
             f"📌 **Title:** [{t.title}]({t.url})\n"
             f"🎙 **Artist:** `{t.artist}`\n"
             f"⏱ **Duration:** `{format_duration(t.duration)}`\n"
             f"🎧 **Source:** `{t.source.title()}`\n\n"
-            f"Play on **Qinxiao Music (@QinxiaoMusicBot)**",
+            f"Play on **{settings.BOT_NAME} ({settings.BOT_USERNAME})**",
             disable_web_page_preview=False
         )
 

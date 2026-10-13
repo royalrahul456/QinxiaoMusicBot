@@ -23,7 +23,7 @@ async def queue_command(client, message: Message):
     queue = await queue_manager.get_queue(chat_id)
     items = queue.get_queue_list()
 
-    text = f"📋 **Qinxiao Music Queue (@QinxiaoMusicBot)**\n━━━━━━━━━━━━━━━━━━━━━━━\n"
+    text = f"📋 **Qingxiao Music Queue (@QinxiaoMusicBot)**\n━━━━━━━━━━━━━━━━━━━━━━━\n"
 
     if queue.current_item:
         song = queue.current_item.song
@@ -50,17 +50,9 @@ async def nowplaying_command(client, message: Message):
     queue = await queue_manager.get_queue(chat_id)
 
     if not queue.current_item:
-        return await message.reply_text("❌ Qinxiao Music is not currently playing anything.")
+        return await message.reply_text("❌ Qingxiao Music is not currently playing anything.")
 
-    song = queue.current_item.song
-    text = (
-        f"🎵 **Now Playing on Qinxiao Music**\n"
-        f"📌 **Title:** [{escape_markdown(song.title)}]({song.url})\n"
-        f"🎙 **Artist:** `{escape_markdown(song.artist)}`\n"
-        f"⏱ **Duration:** `{format_duration(song.duration)}`\n"
-        f"👤 **Requested by:** `{escape_markdown(queue.current_item.requested_by_name)}`"
-    )
-    await message.reply_text(text, disable_web_page_preview=True)
+    await playback_manager.update_player_ui(chat_id)
 
 
 @rate_limit("command", 1.0)
@@ -73,7 +65,7 @@ async def shuffle_command(client, message: Message):
     shuffled = await queue.shuffle()
 
     if shuffled:
-        await message.reply_text("🔀 **Qinxiao Queue has been shuffled!**")
+        await message.reply_text("🔀 **Qingxiao Queue has been shuffled!**")
     else:
         await message.reply_text("❌ Not enough items in queue to shuffle.")
 
@@ -86,7 +78,7 @@ async def clear_command(client, message: Message):
     chat_id = message.chat.id
     queue = await queue_manager.get_queue(chat_id)
     count = await queue.clear()
-    await message.reply_text(f"🗑 **Cleared {count} tracks from the Qinxiao queue.**")
+    await message.reply_text(f"🗑 **Cleared {count} tracks from the Qingxiao queue.**")
 
 
 @rate_limit("command", 1.0)
@@ -136,5 +128,5 @@ async def autoplay_command(client, message: Message):
     queue = await queue_manager.get_queue(chat_id)
     queue.autoplay = not queue.autoplay
     status = "Enabled" if queue.autoplay else "Disabled"
-    await message.reply_text(f"📻 **Qinxiao Autoplay:** `{status}`")
+    await message.reply_text(f"📻 **Qingxiao Autoplay:** `{status}`")
 

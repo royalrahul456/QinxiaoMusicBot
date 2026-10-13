@@ -13,7 +13,7 @@ class Settings(BaseSettings):
     )
 
     # Bot Identity (STRICT)
-    BOT_NAME: str = "Qinxiao Music"
+    BOT_NAME: str = "Qingxiao Music"
     BOT_USERNAME: str = "@QinxiaoMusicBot"
 
     # Telegram Credentials (Loaded from private .env)

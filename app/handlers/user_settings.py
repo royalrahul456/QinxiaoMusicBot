@@ -25,7 +25,7 @@ async def profile_command(client, message: Message):
     prem_status = f"✨ **{sub.plan_name.title()} Plan** (Expires {sub.expires_at.strftime('%Y-%m-%d')})" if sub else "🆓 Free User"
 
     text = (
-        f"👤 **Qinxiao Music User Profile**\n"
+        f"👤 **Qingxiao Music User Profile**\n"
         f"━━━━━━━━━━━━━━━━━━━━━━━\n"
         f"🆔 **User ID:** `{user.id}`\n"
         f"👤 **Name:** `{usr_db.first_name or 'User'}`\n"
@@ -56,9 +56,9 @@ async def history_command(client, message: Message):
         hist = await user_repo.get_history(user.id, limit=15)
 
     if not hist:
-        return await message.reply_text("📜 You have no recently played history on Qinxiao Music.")
+        return await message.reply_text("📜 You have no recently played history on Qingxiao Music.")
 
-    text = f"📜 **Your Qinxiao Play History**\n━━━━━━━━━━━━━━━━━━━━━━━\n"
+    text = f"📜 **Your Qingxiao Play History**\n━━━━━━━━━━━━━━━━━━━━━━━\n"
     for idx, h in enumerate(hist, start=1):
         text += f"`{idx}.` [{h.title}]({h.url}) - `{h.artist}` (`{format_duration(h.duration)}`)\n"
 
@@ -89,5 +89,5 @@ async def settings_command(client, message: Message):
         ]
     ])
 
-    text = f"⚙️ **Personal Settings for Qinxiao Music (@QinxiaoMusicBot)**"
+    text = f"⚙️ **Personal Settings for Qingxiao Music (@QinxiaoMusicBot)**"
     await message.reply_text(text, reply_markup=buttons)

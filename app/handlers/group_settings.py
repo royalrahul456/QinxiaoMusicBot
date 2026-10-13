@@ -25,16 +25,16 @@ async def join_command(client, message: Message):
         bitrate=queue.bitrate
     )
     if success:
-        await message.reply_text("🔌 **Qinxiao Music successfully joined the voice chat!**")
+        await message.reply_text("🔌 **Qingxiao Music successfully joined the voice chat!**")
     else:
-        await message.reply_text("❌ Failed to join voice chat. Make sure voice chat is active and Qinxiao Music has admin permissions!")
+        await message.reply_text("❌ Failed to join voice chat. Make sure voice chat is active and Qingxiao Music has admin permissions!")
 
 
 @rate_limit("command", 1.0)
 async def leave_command(client, message: Message):
     chat_id = message.chat.id
     if not vc_client.is_connected(chat_id):
-        return await message.reply_text("ℹ️ Qinxiao Music is not in the voice chat.")
+        return await message.reply_text("ℹ️ Qingxiao Music is not in the voice chat.")
 
     user = message.from_user
     if chat_id < 0:
@@ -43,7 +43,7 @@ async def leave_command(client, message: Message):
                 return await message.reply_text("❌ Only group administrators can make the bot leave the voice chat.")
 
     await playback_manager.stop(chat_id)
-    await message.reply_text("👋 **Qinxiao Music left the voice chat.**")
+    await message.reply_text("👋 **Qingxiao Music left the voice chat.**")
 
 
 @rate_limit("command", 1.0)
@@ -56,7 +56,7 @@ async def vc_command(client, message: Message):
     playing = queue.current_item.song.title if (queue.current_item and connected) else "Nothing"
 
     text = (
-        f"🎙 **Qinxiao Voice Chat Status**\n"
+        f"🎙 **Qingxiao Voice Chat Status**\n"
         f"━━━━━━━━━━━━━━━━━━━━━━━\n"
         f"Status: `{status}`\n"
         f"Now Playing: `{playing}`\n"

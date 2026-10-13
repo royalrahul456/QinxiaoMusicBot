@@ -37,7 +37,7 @@ async def start_command(client, message: Message):
 
     buttons = InlineKeyboardMarkup([
         [
-            InlineKeyboardButton("➕ Add Qinxiao Music to Group", url=f"https://t.me/{settings.BOT_USERNAME.replace('@', '')}?startgroup=true"),
+            InlineKeyboardButton(f"➕ Add {settings.BOT_NAME} to Group", url=f"https://t.me/{settings.BOT_USERNAME.replace('@', '')}?startgroup=true"),
         ],
         [
             InlineKeyboardButton("📚 Help & Commands", callback_data="cb_help_main"),
@@ -71,7 +71,7 @@ async def help_command(client, message: Message):
         f"<b>├── 🎛 /equalizer ⇢ Sound presets</b>\n"
         f"<b>├── ⚡ /player ⇢ Open interactive UI</b>\n"
         f"<b>│</b>\n"
-        f"<b>╰── ✦ QINXIAO MUSIC</b>"
+        f"<b>╰── ✦ {settings.BOT_NAME.upper()}</b>"
         f"</blockquote>"
     )
     await message.reply_text(help_text, parse_mode=ParseMode.HTML)

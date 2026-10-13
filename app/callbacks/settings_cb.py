@@ -1,5 +1,6 @@
 from pyrogram.types import CallbackQuery
 
+from app.config.settings import settings
 from app.middleware.anti_spam import rate_limit
 from app.database.session import get_session
 from app.repositories.user_repo import UserRepository
@@ -16,7 +17,7 @@ async def settings_callback_handler(client, query: CallbackQuery):
 
     elif data == "cb_about":
         await query.answer()
-        await query.message.reply_text("ℹ️ **Qinxiao Music (@QinxiaoMusicBot)** v1.0.0\nHigh performance Telegram Music Bot.")
+        await query.message.reply_text(f"ℹ️ **{settings.BOT_NAME} ({settings.BOT_USERNAME})** v1.0.0\nHigh performance Telegram Music Bot.")
 
     elif data == "cb_premium_plans":
         await query.answer()

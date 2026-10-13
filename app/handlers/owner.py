@@ -29,7 +29,7 @@ async def broadcast_command(client, message: Message):
         return await message.reply_text("❌ Usage: Reply to a message or provide text to broadcast.")
 
     b_text = message.reply_to_message.text if message.reply_to_message else " ".join(message.command[1:])
-    status_msg = await message.reply_text("🚀 Starting global broadcast for Qinxiao Music...")
+    status_msg = await message.reply_text("🚀 Starting global broadcast for Qingxiao Music...")
 
     # Broadcast dummy simulation / execution stub
     await status_msg.edit_text(f"✅ **Broadcast completed.** Delivered message to active chats.")
@@ -51,7 +51,7 @@ async def botstats_command(client, message: Message):
     metrics = stats_tracker.get_system_metrics()
 
     text = (
-        f"📊 **Qinxiao Music Complete System Statistics**\n"
+        f"📊 **Qingxiao Music Complete System Statistics**\n"
         f"━━━━━━━━━━━━━━━━━━━━━━━\n"
         f"⏱ **Uptime:** `{format_uptime(metrics['uptime'])}`\n"
         f"💻 **CPU Usage:** `{metrics['cpu_percent']}%`\n"
@@ -77,7 +77,7 @@ async def activevc_command(client, message: Message):
     if not active:
         return await message.reply_text("🎙 No voice chats are currently active.")
 
-    text = f"🎙 **Active Qinxiao Voice Chats ({len(active)})**\n"
+    text = f"🎙 **Active Qingxiao Voice Chats ({len(active)})**\n"
     for cid in active:
         text += f"• Chat ID: `{cid}`\n"
 
@@ -115,7 +115,7 @@ async def restart_command(client, message: Message):
     if not user or not await is_owner(user.id):
         return await message.reply_text("❌ Owner-only command.")
 
-    await message.reply_text("🔄 **Restarting Qinxiao Music...**")
+    await message.reply_text("🔄 **Restarting Qingxiao Music...**")
     os.execl(sys.executable, sys.executable, *sys.argv)
 
 
@@ -130,7 +130,7 @@ async def cache_command(client, message: Message):
             return await message.reply_text("❌ Permission denied.")
 
     c_stats = await cache.stats()
-    await message.reply_text(f"💾 **Qinxiao Cache Info:**\n`{c_stats}`")
+    await message.reply_text(f"💾 **Qingxiao Cache Info:**\n`{c_stats}`")
 
 
 @rate_limit("command", 1.0)
@@ -144,7 +144,7 @@ async def clearcache_command(client, message: Message):
             return await message.reply_text("❌ Permission denied.")
 
     await cache.clear()
-    await message.reply_text("🧹 **Qinxiao music & search cache cleared.**")
+    await message.reply_text("🧹 **Qingxiao music & search cache cleared.**")
 
 
 @rate_limit("command", 1.0)
@@ -158,9 +158,9 @@ async def speedtest_command(client, message: Message):
             return await message.reply_text("❌ Permission denied.")
 
     start = time.time()
-    msg = await message.reply_text("⚡ Testing Qinxiao latency...")
+    msg = await message.reply_text("⚡ Testing Qingxiao latency...")
     latency = (time.time() - start) * 1000
-    await msg.edit_text(f"⚡ **Qinxiao Music Latency:** `{latency:.2f} ms`")
+    await msg.edit_text(f"⚡ **Qingxiao Music Latency:** `{latency:.2f} ms`")
 
 
 @rate_limit("command", 1.0)
@@ -184,7 +184,7 @@ async def addsudo_command(client, message: Message):
         added = await repo.add_sudo(target_id, user.id)
 
     if added:
-        await message.reply_text(f"✅ Added `{target_id}` to Qinxiao Sudo list.")
+        await message.reply_text(f"✅ Added `{target_id}` to Qingxiao Sudo list.")
     else:
         await message.reply_text("ℹ️ User is already a Sudo user.")
 
@@ -210,7 +210,7 @@ async def delsudo_command(client, message: Message):
         removed = await repo.remove_sudo(target_id)
 
     if removed:
-        await message.reply_text(f"🗑 Removed `{target_id}` from Qinxiao Sudo list.")
+        await message.reply_text(f"🗑 Removed `{target_id}` from Qingxiao Sudo list.")
     else:
         await message.reply_text("❌ User not found in Sudo list.")
 
@@ -228,7 +228,7 @@ async def sudolist_command(client, message: Message):
         repo = SudoRepository(session)
         sudos = await repo.get_sudo_list()
 
-    text = f"👑 **Qinxiao Sudo Users ({len(sudos)})**\n"
+    text = f"👑 **Qingxiao Sudo Users ({len(sudos)})**\n"
     for s in sudos:
         text += f"• `{s}`\n"
 

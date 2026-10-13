@@ -16,7 +16,7 @@ async def top_command(client, message: Message):
     async with get_session() as session:
         top_songs, top_artists = await stats_tracker.get_bot_leaderboards(session)
 
-    text = f"📊 **Qinxiao Music Top Charts**\n━━━━━━━━━━━━━━━━━━━━━━━\n\n"
+    text = f"📊 **Qingxiao Music Top Charts**\n━━━━━━━━━━━━━━━━━━━━━━━\n\n"
     text += "🎵 **Most Played Songs:**\n"
     for idx, s in enumerate(top_songs[:5], start=1):
         text += f"`{idx}.` [{s.title}]({s.url}) - `{s.artist}` (`{s.play_count}` plays)\n"
@@ -37,7 +37,7 @@ async def topsongs_command(client, message: Message):
     if not top_songs:
         return await message.reply_text("📊 No track playback statistics recorded yet.")
 
-    text = "🎵 **Qinxiao Music Most Played Tracks**\n━━━━━━━━━━━━━━━━━━━━━━━\n"
+    text = "🎵 **Qingxiao Music Most Played Tracks**\n━━━━━━━━━━━━━━━━━━━━━━━\n"
     for idx, s in enumerate(top_songs, start=1):
         text += f"`{idx}.` [{s.title}]({s.url}) - `{s.artist}` (`{s.play_count}` plays)\n"
 
@@ -53,7 +53,7 @@ async def topartists_command(client, message: Message):
     if not top_artists:
         return await message.reply_text("📊 No artist statistics recorded yet.")
 
-    text = "🎙 **Qinxiao Music Most Played Artists**\n━━━━━━━━━━━━━━━━━━━━━━━\n"
+    text = "🎙 **Qingxiao Music Most Played Artists**\n━━━━━━━━━━━━━━━━━━━━━━━\n"
     for idx, (artist, count) in enumerate(top_artists, start=1):
         text += f"`{idx}.` `{artist}` (`{count}` total plays)\n"
 
@@ -91,4 +91,4 @@ async def listeningtime_command(client, message: Message):
         usr = await user_repo.get_or_create(user.id)
 
     uptime_str = format_uptime(int(usr.total_listening_time))
-    await message.reply_text(f"⏱ **Your Total Qinxiao Listening Time:** `{uptime_str}` ({usr.total_play_count} tracks played)")
+    await message.reply_text(f"⏱ **Your Total Qingxiao Listening Time:** `{uptime_str}` ({usr.total_play_count} tracks played)")
