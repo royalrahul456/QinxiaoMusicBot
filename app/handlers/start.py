@@ -1,4 +1,5 @@
 from pyrogram import filters
+from pyrogram.enums import ParseMode
 from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
 
 from app.config.settings import settings
@@ -15,16 +16,23 @@ async def start_command(client, message: Message):
             repo = UserRepository(session)
             await repo.get_or_create(user.id, user.username, user.first_name)
 
-    caption = (
-        f"🎵 **Welcome to Qinxiao Music!** (@QinxiaoMusicBot)\n\n"
-        f"Hello {user.first_name if user else 'there'}! I am **Qinxiao Music**, your high-quality Telegram Music Bot.\n\n"
-        f"✨ **Key Features:**\n"
-        f"• High quality voice-chat audio streaming\n"
-        f"• Search YouTube, Spotify metadata & SoundCloud\n"
-        f"• Smart Queue, Loop, Autoplay & Equalizer\n"
-        f"• Synchronized Lyrics & Favorites\n"
-        f"• Multi-tier Premium System & 24/7 Mode\n\n"
-        f"Use the buttons below or send `/help` to view all available commands."
+    start_text = (
+        f"<blockquote>"
+        f"🎧 <b>╭─[ 🎵 {settings.BOT_NAME.upper()} ]</b>\n"
+        f"<b>│</b>\n"
+        f"<b>├── 🎶 ⇢ HIGH-QUALITY MUSIC</b>\n"
+        f"<b>├── ⚡ ⇢ FAST & SMOOTH PLAYBACK</b>\n"
+        f"<b>├── 🎼 ⇢ YOUR MUSIC, YOUR VIBE</b>\n"
+        f"<b>│</b>\n"
+        f"<b>├── [ 🎛 QUICK GUIDE ]</b>\n"
+        f"<b>├── 🎵 ⇢ PLAY YOUR FAVOURITE SONGS</b>\n"
+        f"<b>├── 🎧 ⇢ SIT BACK & ENJOY THE MUSIC</b>\n"
+        f"<b>│</b>\n"
+        f"<b>╰── ✦ POWERED BY {settings.BOT_USERNAME}</b>"
+        f"</blockquote>\n\n"
+        f"👋 <b>Hey {user.first_name if user else 'there'}!</b>\n"
+        f"Welcome to <b>{settings.BOT_NAME}</b> — your high-performance Telegram Voice Chat Music Player.\n\n"
+        f"✨ <i>Add me to your group, open voice chat, and use <code>/play &lt;song&gt;</code> to start listening!</i>"
     )
 
     buttons = InlineKeyboardMarkup([
@@ -41,59 +49,48 @@ async def start_command(client, message: Message):
         ]
     ])
 
-    await message.reply_text(caption, reply_markup=buttons, disable_web_page_preview=True)
+    await message.reply_text(start_text, reply_markup=buttons, disable_web_page_preview=True, parse_mode=ParseMode.HTML)
 
 
 @rate_limit("command", 1.0)
 async def help_command(client, message: Message):
     help_text = (
-        f"📚 **Qinxiao Music (@QinxiaoMusicBot) Command Guide**\n\n"
-        f"🎵 **Music Commands:**\n"
-        f"• `/play <query/URL>` - Search and play music\n"
-        f"• `/search <query>` - Interactive music search\n"
-        f"• `/yt <query>` - Search & play from YouTube\n"
-        f"• `/spotify <query>` - Search Spotify metadata\n"
-        f"• `/soundcloud <query>` - Search SoundCloud\n"
-        f"• `/playlist <url>` - Play supported playlists\n"
-        f"• `/recommend` - Play music recommendations\n"
-        f"• `/trending` - Play top trending music\n"
-        f"• `/pause` / `/resume` - Pause or resume playback\n"
-        f"• `/skip` - Skip current track\n"
-        f"• `/stop` - Stop music & clear queue\n"
-        f"• `/replay` - Restart current track\n"
-        f"• `/seek <seconds>` - Jump to timestamp\n"
-        f"• `/volume <0-200>` - Set playback volume\n"
-        f"• `/mute` / `/unmute` - Mute/unmute audio\n\n"
-        f"📋 **Queue Commands:**\n"
-        f"• `/queue` - Show current queue\n"
-        f"• `/nowplaying` - Show currently playing song\n"
-        f"• `/shuffle` - Shuffle current queue\n"
-        f"• `/clear` - Clear all queued songs\n"
-        f"• `/loop` - Enable/disable track loop\n"
-        f"• `/loopqueue` - Enable/disable queue loop\n"
-        f"• `/autoplay` - Toggle autoplay recommendations\n\n"
-        f"🎛 **Audio & Settings:**\n"
-        f"• `/quality` - Select audio quality\n"
-        f"• `/bitrate` - Select bitrate (64k-320k)\n"
-        f"• `/equalizer` - Set EQ preset (rock, pop, jazz, etc.)\n"
-        f"• `/bassboost` - Toggle bass boost\n"
-        f"• `/normalizer` - Toggle volume normalization\n"
-        f"• `/player` - Open interactive player UI\n"
-        f"• `/247` - Toggle 24/7 voice chat presence\n"
-        f"• `/autoleave` - Toggle auto-leave when empty\n"
+        f"<blockquote>"
+        f"🎧 <b>╭─[ 📚 COMMAND MANUAL ]</b>\n"
+        f"<b>│</b>\n"
+        f"<b>├── 🎵 /play &lt;song/url&gt; ⇢ Play in Voice Chat</b>\n"
+        f"<b>├── ⏸ /pause ⇢ Pause current playback</b>\n"
+        f"<b>├── ▶️ /resume ⇢ Resume current track</b>\n"
+        f"<b>├── ⏭ /skip ⇢ Skip to next track</b>\n"
+        f"<b>├── ⏹ /stop ⇢ Stop & clear queue</b>\n"
+        f"<b>├── 📋 /queue ⇢ View queued tracks</b>\n"
+        f"<b>├── 🔊 /volume &lt;0-200&gt; ⇢ Adjust volume</b>\n"
+        f"<b>├── 🔂 /loop ⇢ Loop single song</b>\n"
+        f"<b>├── 🔁 /loopqueue ⇢ Loop entire queue</b>\n"
+        f"<b>├── 📻 /autoplay ⇢ Smart autoplay</b>\n"
+        f"<b>├── 🎛 /equalizer ⇢ Sound presets</b>\n"
+        f"<b>├── ⚡ /player ⇢ Open interactive UI</b>\n"
+        f"<b>│</b>\n"
+        f"<b>╰── ✦ QINXIAO MUSIC</b>"
+        f"</blockquote>"
     )
-    await message.reply_text(help_text)
+    await message.reply_text(help_text, parse_mode=ParseMode.HTML)
 
 
 @rate_limit("command", 1.0)
 async def about_command(client, message: Message):
     about_text = (
-        f"ℹ️ **About Qinxiao Music (@QinxiaoMusicBot)**\n\n"
-        f"**Qinxiao Music** is a next-generation Telegram Music Bot built for high-performance audio playback in voice chats.\n\n"
-        f"• **Version:** `1.0.0`\n"
-        f"• **Identity:** `@QinxiaoMusicBot`\n"
-        f"• **Audio Engine:** PyTgCalls + FFmpeg Real-Time Filter Engine\n"
-        f"• **Database:** SQLAlchemy Async + SQLite/PostgreSQL\n"
-        f"• **Providers:** YouTube, Spotify Metadata, SoundCloud\n"
+        f"<blockquote>"
+        f"🎧 <b>╭─[ ℹ️ ABOUT {settings.BOT_NAME.upper()} ]</b>\n"
+        f"<b>│</b>\n"
+        f"<b>├── 🤖 ⇢ NAME : {settings.BOT_NAME}</b>\n"
+        f"<b>├── 🆔 ⇢ BOT : {settings.BOT_USERNAME}</b>\n"
+        f"<b>├── ⚡ ⇢ ENGINE : PyTgCalls 3.0 + FFmpeg</b>\n"
+        f"<b>├── 🌐 ⇢ SOURCES : YouTube • Spotify • SoundCloud</b>\n"
+        f"<b>├── 🛡 ⇢ FRAMEWORK : Kurigram Layer 229</b>\n"
+        f"<b>│</b>\n"
+        f"<b>╰── ✦ HIGH QUALITY TELEGRAM AUDIO</b>"
+        f"</blockquote>\n\n"
+        f"💡 <i>Tip: Add me to your group and start a voice chat to begin!</i>"
     )
-    await message.reply_text(about_text)
+    await message.reply_text(about_text, parse_mode=ParseMode.HTML)

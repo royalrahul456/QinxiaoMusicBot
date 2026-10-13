@@ -118,12 +118,20 @@ class MockMessage:
             return {"inline_keyboard": kb}
         return None
 
-    async def reply_text(self, text: str, reply_markup=None, disable_web_page_preview=False):
+    async def reply_text(self, text: str, reply_markup=None, disable_web_page_preview=False, parse_mode=None):
         url = f"https://api.telegram.org/bot{self._bot_token}/sendMessage"
+        mode = parse_mode
+        if mode is None:
+            mode = "HTML" if ("<" in text and ">" in text) else "Markdown"
+        elif hasattr(mode, "value"):
+            mode = mode.value
+        elif hasattr(mode, "name"):
+            mode = mode.name
+
         payload = {
             "chat_id": self.chat.id,
             "text": text,
-            "parse_mode": "Markdown",
+            "parse_mode": mode,
             "disable_web_page_preview": disable_web_page_preview,
         }
         serialized_kb = self._serialize_reply_markup(reply_markup)
@@ -136,22 +144,30 @@ class MockMessage:
                 if data.get("ok"):
                     return MockMessage(data["result"], self._bot_token, self._session)
                 else:
-                    # Fallback plain text if markdown error
+                    # Fallback plain text if markup error
                     payload["parse_mode"] = None
                     async with self._session.post(url, json=payload) as r2:
                         res2 = await r2.json()
                         if res2.get("ok"):
                             return MockMessage(res2["result"], self._bot_token, self._session)
         except Exception as e:
-            logger.error(f"Error replying text via HTTP Bot API")
+            logger.error(f"Error replying text via HTTP Bot API: {e}")
 
-    async def edit_text(self, text: str, reply_markup=None, disable_web_page_preview=False):
+    async def edit_text(self, text: str, reply_markup=None, disable_web_page_preview=False, parse_mode=None):
         url = f"https://api.telegram.org/bot{self._bot_token}/editMessageText"
+        mode = parse_mode
+        if mode is None:
+            mode = "HTML" if ("<" in text and ">" in text) else "Markdown"
+        elif hasattr(mode, "value"):
+            mode = mode.value
+        elif hasattr(mode, "name"):
+            mode = mode.name
+
         payload = {
             "chat_id": self.chat.id,
             "message_id": self.message_id,
             "text": text,
-            "parse_mode": "Markdown",
+            "parse_mode": mode,
             "disable_web_page_preview": disable_web_page_preview,
         }
         serialized_kb = self._serialize_reply_markup(reply_markup)
@@ -169,8 +185,8 @@ class MockMessage:
                         res2 = await r2.json()
                         if res2.get("ok"):
                             return MockMessage(res2["result"], self._bot_token, self._session)
-        except Exception:
-            logger.error("Error editing text via HTTP Bot API")
+        except Exception as e:
+            logger.error(f"Error editing text via HTTP Bot API: {e}")
 
     async def delete(self):
         url = f"https://api.telegram.org/bot{self._bot_token}/deleteMessage"
